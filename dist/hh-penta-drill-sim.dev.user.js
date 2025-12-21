@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.1
+// @version      0.0.2
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -14,17 +14,12 @@
 // @match        https://*.mangarpg.com/*
 // @grant        none
 // @run-at       document-body
-
+// @updateURL    https://github.com/rena-jp/hh-penta-drill-sim/raw/main/dist/hh-penta-drill-sim.meta.js
+// @downloadURL  https://github.com/rena-jp/hh-penta-drill-sim/raw/main/dist/hh-penta-drill-sim.dev.user.js
 // ==/UserScript==
 
 "use strict";
 (() => {
-  // src/style/sim-results.css
-  var sim_results_default = ".pd-sim-result-box {\n  position: relative;\n  width: 100%;\n  height: 0;\n\n  & .pd-sim-result {\n    position: absolute;\n    width: max-content;\n    height: 0;\n    line-height: 1.25rem;\n    text-align: center;\n    text-shadow:\n      -1px -1px 0 #000,\n      -1px 1px 0 #000,\n      1px -1px 0 #000,\n      1px 1px 0 #000;\n    z-index: 1;\n\n    & .pd-sim-label {\n      font-size: 0.75rem;\n    }\n\n    &.pd-sim-pending {\n      color: #999;\n    }\n  }\n}\n\n.penta-drill-battle .pd-sim-result-box .pd-sim-result {\n  bottom: 3rem;\n  &.pd-sim-right {\n    right: 0;\n  }\n\n  &.pd-sim-left {\n    left: 0;\n  }\n}\n\n.opponent-info-container .pd-sim-result-box .pd-sim-result {\n  bottom: 3.5rem;\n  &.pd-sim-right {\n    right: 10%;\n  }\n\n  &.pd-sim-left {\n    left: 10%;\n  }\n}\n\n.pd-sim-resource-box {\n  width: 100%;\n  height: 0;\n  position: relative;\n  #drill_energy {\n    position: absolute;\n    bottom: 6rem;\n    left: 38%;\n    right: 38%;\n  }\n}\n";
-
-  // src/style/compact-rewards.css
-  var compact_rewards_default = "body.page-penta-drill-battle {\n  .popup_wrapper #rewards_popup .flex-container .rewards .container .scrolling_area,\n  .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable,\n  .popup_wrapper #rewards_popup .flex-container .rewards .rewards_background {\n    max-height: unset;\n  }\n  .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable {\n    zoom: 0.65;\n  }\n  #rewards_big_header {\n    zoom: 0.4;\n  }\n}\n";
-
   // src/data.ts
   function getTeamFromFighter(fighters) {
     const list = fighters.map((e) => getGirlFromFighter(e));
@@ -138,6 +133,8 @@
     const points = Array(11).fill(0);
     let totalSum = 0;
     let totalRounds = 0;
+    let minRounds = Number.MAX_SAFE_INTEGER;
+    let maxRounds = 0;
     for (let i = 0; i < count; i++) {
       let sum = 0;
       let rounds = 0;
@@ -154,11 +151,15 @@
       points[sum]++;
       totalSum += sum;
       totalRounds += sumRounds;
+      minRounds = Math.min(minRounds, sumRounds);
+      maxRounds = Math.max(maxRounds, sumRounds);
     }
     return {
       points: totalSum / count,
       rounds: totalRounds / count,
-      pointTable: points.map((e) => e / count)
+      pointTable: points.map((e) => e / count),
+      minRounds,
+      maxRounds
     };
   }
   function simulatePentaDrill2(playerTeams, opponentTeams, count) {
@@ -166,6 +167,8 @@
     const points = Array(11).fill(0);
     let totalSum = 0;
     let totalRounds = 0;
+    let minRounds = Number.MAX_SAFE_INTEGER;
+    let maxRounds = 0;
     for (let i = 0; i < count; i++) {
       let sum = 0;
       let rounds = 0;
@@ -182,11 +185,15 @@
       points[sum]++;
       totalSum += sum;
       totalRounds += sumRounds;
+      minRounds = Math.min(minRounds, sumRounds);
+      maxRounds = Math.max(maxRounds, sumRounds);
     }
     return {
       points: totalSum / count,
       rounds: totalRounds / count,
-      pointTable: points.map((e) => e / count)
+      pointTable: points.map((e) => e / count),
+      minRounds,
+      maxRounds
     };
   }
   function simulateBattle(playerTeam, opponentTeam, startRounds) {
@@ -203,7 +210,8 @@
         defenderTeam: playerTeam,
         teamOrder: i
       }))
-    ].toSorted((x, y) => {
+    ];
+    order.sort((x, y) => {
       const xSpeed = x.attacker.speed;
       const ySpeed = y.attacker.speed;
       if (xSpeed < ySpeed) return 1;
@@ -478,6 +486,55 @@
     }
   }
 
+  // src/style/compact-grid.css
+  var compact_grid_default = "body.page-edit-penta-drill-team .harem-panel .harem-panel-girls {\n  padding: 0;\n  grid-row-gap: 0;\n  grid-template-columns: repeat(5, 58px);\n}\nbody.page-edit-penta-drill-team .harem-panel-girls .harem-girl-container {\n  width: 58px;\n  height: 80px;\n}\n";
+
+  // src/style/compact-rewards.css
+  var compact_rewards_default = "body.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .scrolling_area,\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable,\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .rewards_background {\n  max-height: unset;\n}\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable {\n  zoom: 0.65;\n}\nbody.page-penta-drill-battle #rewards_big_header {\n  zoom: 0.4;\n}\n";
+
+  // src/style/sim-results.css
+  var sim_results_default = ".pd-sim-result-box {\n  position: relative;\n  width: 100%;\n  height: 0;\n}\n.pd-sim-result-box .pd-sim-result {\n  position: absolute;\n  width: max-content;\n  height: 0;\n  line-height: 1.25rem;\n  text-align: center;\n  text-shadow:\n    -1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px -1px 0 #000,\n    1px 1px 0 #000;\n  z-index: 1;\n}\n.pd-sim-result-box .pd-sim-result .pd-sim-label {\n  font-size: 0.75rem;\n}\n.pd-sim-result-box .pd-sim-result.pd-sim-pending {\n  color: #999;\n}\n.penta-drill-battle .pd-sim-result-box .pd-sim-result {\n  bottom: 3rem;\n}\n.penta-drill-battle .pd-sim-result-box .pd-sim-result.pd-sim-right {\n  right: 0;\n}\n.penta-drill-battle .pd-sim-result-box .pd-sim-result.pd-sim-left {\n  left: 0;\n}\n.opponent-info-container .pd-sim-result-box .pd-sim-result {\n  bottom: 3.5rem;\n}\n.opponent-info-container .pd-sim-result-box .pd-sim-result.pd-sim-right {\n  right: 10%;\n}\n.opponent-info-container .pd-sim-result-box .pd-sim-result.pd-sim-left {\n  left: 10%;\n}\n.pd-sim-resource-box {\n  width: 100%;\n  height: 0;\n  position: relative;\n}\n.pd-sim-resource-box #drill_energy {\n  position: absolute;\n  bottom: 6rem;\n  left: 38%;\n  right: 38%;\n}\n";
+
+  // src/style/tooltip-on-locked-girl.css
+  var tooltip_on_locked_girl_default = "body.page-edit-penta-drill-team #edit-team-page.penta-drill .harem-panel .panel-body .harem-panel-girls .harem-girl-container:not(.selected)[team_slot] .grey-overlay {\n  pointer-events: none;\n}\n";
+
+  // src/style/shortcut-bar.css
+  var shortcut_bar_default = "#shortcut-bar-box {\n  position: absolute;\n  right: 408px;\n  width: fit-content;\n  display: flex;\n  flex-direction: row;\n  gap: 0.35rem;\n  padding: 0.7rem 1px 0.7rem 0.7rem;\n  border-radius: 0.7rem 0 0 0.7rem;\n  background-color: #4f222e;\n  z-index: 1;\n}\n#shortcut-bar-box .shortcut-bar {\n  display: flex;\n  flex-direction: column;\n}\n#shortcut-bar-box .shortcut-bar .check-btn.element-state {\n  width: 38px;\n  height: 38px;\n  padding: 0;\n}\n#shortcut-bar-box .shortcut-bar .check-btn.element-state .role-icn {\n  width: 36px;\n  height: 36px;\n  background-size: 27px;\n}\n@media (min-width: 1026px) {\n  #shortcut-bar-box {\n    top: 113px;\n  }\n}\n@media (max-width: 1025px) {\n  #shortcut-bar-box {\n    top: 134px;\n  }\n}\n";
+
+  // src/types.ts
+  var ElementTypes = [
+    "darkness",
+    "light",
+    "psychic",
+    "water",
+    "fire",
+    "nature",
+    "stone",
+    "sun"
+  ];
+  var RoleIds = [1, 2, 3, 4, 5, 6, 9, 10];
+  var SkillNameFromSkillType = {
+    punch: "Spank!",
+    heal_up: "Recovery",
+    mana_steal: "Mana Steal",
+    shield_many: "Shields Up",
+    burn: "Burnout!",
+    mana_boost: "Mana Boost",
+    defenses_up: "Reassurance",
+    stun_many: "Lovestruck",
+    light_punch: "Default"
+  };
+  var SkillTypeFromElement = {
+    darkness: "punch",
+    light: "heal_up",
+    psychic: "mana_steal",
+    water: "shield_many",
+    fire: "burn",
+    nature: "mana_boost",
+    stone: "defenses_up",
+    sun: "stun_many"
+  };
+
   // src/index.ts
   (async function() {
     "use strict";
@@ -492,6 +549,7 @@
     hhPlusPlusConfig.registerGroup({ key: GROUP_KEY, name: `PD Sim` });
     const moduleList = [
       PentaDrillSimModule,
+      TeamEditingTweaksModule,
       AddResoureBarModule,
       FasterSkipButtonModule,
       CompactRewardsModule
@@ -529,7 +587,7 @@
     hhPlusPlusConfig.runModules();
     return;
     function AsyncImpl() {
-      const beforeGameInitedPromise = new Promise((resolve) => {
+      const beforeGameScriptsRunPromise = new Promise((resolve) => {
         if (document.readyState === "loading") {
           window.addEventListener("DOMContentLoaded", () => resolve(), {
             capture: true,
@@ -539,19 +597,19 @@
           resolve();
         }
       });
-      const afterGameInitedPromise = new Promise((resolve) => {
-        beforeGameInitedPromise.then(() => {
+      const afterGameScriptsRunPromise = new Promise((resolve) => {
+        beforeGameScriptsRunPromise.then(() => {
           $(() => {
             resolve();
           });
         });
       });
       const o = {
-        beforeGameInited() {
-          return beforeGameInitedPromise;
+        beforeGameScriptsRun() {
+          return beforeGameScriptsRunPromise;
         },
-        afterGameInited() {
-          return afterGameInitedPromise;
+        afterGameScriptsRun() {
+          return afterGameScriptsRunPromise;
         },
         run(f) {
           return new Promise((resolve) => {
@@ -561,13 +619,13 @@
           });
         },
         domReady() {
-          return afterGameInitedPromise;
+          return afterGameScriptsRunPromise;
         },
         async importHHPlusPlus() {
           if (window.HHPlusPlus) return window.HHPlusPlus;
-          await this.beforeGameInited();
+          await this.beforeGameScriptsRun();
           if (window.HHPlusPlus) return window.HHPlusPlus;
-          await this.afterGameInited();
+          await this.afterGameScriptsRun();
           return window.HHPlusPlus;
         },
         querySelector(target, selector) {
@@ -618,7 +676,7 @@
         ],
         async run(subSettings) {
           if (subSettings.arena && Helpers.isCurrentPage("/penta-drill-arena.html")) {
-            await Async.beforeGameInited();
+            await Async.beforeGameScriptsRun();
             $(document.head).append(`<style>${sim_results_default}</style>`);
             const { player_datas, opponents_list } = window;
             if (player_datas == null || opponents_list == null) {
@@ -632,13 +690,21 @@
                 opponent.player.team,
                 numSimulation
               );
-              await Async.afterGameInited();
+              await Async.afterGameScriptsRun();
               const $box = createSimResultsBox(expected);
-              $(`a[href$="id_opponent=${opponent.player.id_fighter}"]`).parent().after($box);
+              let $button = $(
+                `a[href$="id_opponent=${opponent.player.id_fighter}"]`
+              );
+              if ($button.length === 0) {
+                $button = $(
+                  `a[href*="id_opponent=${opponent.player.id_fighter}&"]`
+                );
+              }
+              $button.parent().after($box);
             });
           }
           if (Helpers.isCurrentPage("/penta-drill-pre-battle")) {
-            await Async.beforeGameInited();
+            await Async.beforeGameScriptsRun();
             $(document.head).append(`<style>${sim_results_default}</style>`);
             if (subSettings.preBattle) {
               const { hero_fighter, opponent_fighter } = window;
@@ -652,7 +718,7 @@
                 opponent_fighter,
                 numSimulation
               );
-              await Async.afterGameInited();
+              await Async.afterGameScriptsRun();
               const $box = createSimResultsBox(expected);
               $(".opponent_rewards").after($box);
             }
@@ -663,16 +729,33 @@
               `<div class="pd-sim-label">E[Points]:</div><span class="pd-sim-points">${expected.points.toFixed(2)}</span>`
             ).attr(
               "tooltip",
-              expected.pointTable.map((e, i) => [i, e]).filter(([i, e]) => e > 0).map(([i, e]) => `${i} => ${(100 * e).toFixed(0)}%`).join("<br />")
-            );
-            const $right = $(
-              '<div class="pd-sim-result pd-sim-right"></div>'
-            ).html(
+              expected.pointTable.map((e, i) => [i, e]).filter(([_, e]) => e > 0).map(([i, e]) => `${i} => ${(100 * e).toFixed(0)}%`).join("<br />")
+            ).css("color", getPointsColor(expected.points));
+            const $right = $('<div class="pd-sim-result pd-sim-right"></div>').html(
               `<div class="pd-sim-label">E[Rounds]:</div><span class="pd-sim-rounds">${expected.rounds.toFixed(1)}</span>`
-            );
+            ).attr("tooltip", `${expected.minRounds} - ${expected.maxRounds}`).css("color", getRoundsColor(expected.maxRounds));
             $box.append($left);
             $box.append($right);
             return $box;
+          }
+          function clamp(value, min, max) {
+            return value <= min ? min : value >= max ? max : value;
+          }
+          function getGammaCorrectedValue(value) {
+            return Math.round(255 * Math.sqrt(clamp(value, 0, 1)));
+          }
+          function getRatingColor(rate) {
+            const red = getGammaCorrectedValue(2 - 2 * rate);
+            const green = getGammaCorrectedValue(2 * rate);
+            return `rgb(${red}, ${green}, 0)`;
+          }
+          function getPointsColor(points) {
+            const rate = clamp(points / 10, 0, 1) ** 3;
+            return getRatingColor(rate);
+          }
+          function getRoundsColor(rounds) {
+            const rate = clamp((100 - rounds) / 20, 0, 1);
+            return getRatingColor(rate);
           }
         }
       };
@@ -683,7 +766,7 @@
         default: true,
         async run() {
           if (!Helpers.isCurrentPage("/penta-drill-pre-battle")) return;
-          await Async.beforeGameInited();
+          await Async.beforeGameScriptsRun();
           $(".penta-drill-pre-battle-container").append(
             `<div class="pd-sim-resource-box"><div class="energy_counter" type="drill" id="drill_energy"></div></div>`
           );
@@ -696,7 +779,7 @@
         default: true,
         async run() {
           if (!Helpers.isCurrentPage("/penta-drill-battle.html")) return;
-          await Async.beforeGameInited();
+          await Async.beforeGameScriptsRun();
           Helpers.onAjaxResponse(/action=do_battles_penta_drill/i, () => {
             $(".skip-buttons-container").attr("style", "");
           });
@@ -709,8 +792,91 @@
         default: true,
         async run() {
           if (!Helpers.isCurrentPage("/penta-drill-battle.html")) return;
-          await Async.beforeGameInited();
           $(document.head).append(`<style>${compact_rewards_default}</style>`);
+        }
+      };
+    }
+    function TeamEditingTweaksModule() {
+      return {
+        label: "Team editing tweaks",
+        default: true,
+        settings: [
+          { key: "compactGrid", default: true, label: "Compact grid" },
+          {
+            key: "tooltipOnLocked",
+            default: true,
+            label: "Show tooltip on locked girl"
+          },
+          {
+            key: "shortcutBar",
+            default: true,
+            label: "Add shortcut bar"
+          }
+        ],
+        async run(subSettings) {
+          if (!Helpers.isCurrentPage("/edit-penta-drill-team") && !Helpers.isCurrentPage("/edit-labyrinth-team.html"))
+            return;
+          if (subSettings.compactGrid) {
+            $(document.head).append(`<style>${compact_grid_default}</style>`);
+          }
+          if (subSettings.tooltipOnLocked) {
+            $(document.head).append(`<style>${tooltip_on_locked_girl_default}</style>`);
+          }
+          if (subSettings.shortcutBar) {
+            $(document.head).append(`<style>${shortcut_bar_default}</style>`);
+          }
+          await Async.beforeGameScriptsRun();
+          if (subSettings.shortcutBar) {
+            const haremGirlsMap = {};
+            const availableGirls = window.availableGirls;
+            availableGirls.forEach((e) => {
+              haremGirlsMap[e.id_girl] = e;
+            });
+            const html = [
+              `<div id="shortcut-bar-box" class="checkbox-group">`,
+              '<div class="shortcut-bar skill">',
+              '<button class="check-btn element-state" value="all" tooltip="All"></button>',
+              ElementTypes.map((e) => {
+                const skillType = SkillTypeFromElement[e];
+                const skillName = SkillNameFromSkillType[skillType];
+                return `<button class="check-btn element-state" value="${e}" tooltip="${skillName}"><span class="role-icn ${skillType}_icn"></span></button>`;
+              }).join(""),
+              "</div>",
+              '<div class="shortcut-bar role">',
+              '<button class="check-btn element-state" value="all" tooltip="All Roles"></button>',
+              RoleIds.map(
+                (roleId) => `<button class="check-btn element-state" value="${roleId}" role-tooltip="${roleId}"><span class="role-icn girl_role_${roleId}_icn"></span></button>`
+              ).join(""),
+              "</div>",
+              "</div>"
+            ].join("");
+            const panel = $(html);
+            panel.insertAfter(".change-team-panel.harem-panel");
+            panel.find(".role button.check-btn").each((_, e) => {
+              const value = e.value;
+              $(e).on("click", () => {
+                let $roleFilter = $("select#filter_role");
+                if ($roleFilter.length === 0)
+                  $roleFilter = $('select[name="role"]');
+                $roleFilter.prop("value", value).selectric("refresh").change();
+              });
+            });
+            panel.find(".skill button.check-btn").each((_, e) => {
+              const value = e.value;
+              $(e).on("click", () => {
+                let $elementFilter = $("select#filter_element");
+                if ($elementFilter.length === 0)
+                  $elementFilter = $('select[name="element"]');
+                $elementFilter.prop("value", value).selectric("refresh").change();
+                const $skillTierFilter = $("select#filter_skill_tier");
+                if (value === "all") {
+                  $skillTierFilter.prop("value", "all").selectric("refresh").change();
+                } else {
+                  $skillTierFilter.prop("value", 5).selectric("refresh").change();
+                }
+              });
+            });
+          }
         }
       };
     }
