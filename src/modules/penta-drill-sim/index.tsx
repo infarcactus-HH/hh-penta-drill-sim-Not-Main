@@ -1,12 +1,12 @@
-import type { MyModule } from '../../common/types';
-import { Page, Async, Style, Color } from '../../utils';
-import { simulatePentaDrill } from '../../simulator/simulator';
-import css from './style.css';
 import { render } from 'preact-render-to-string';
 import {
   getTeamsFromFighters,
   getTeamsFromGamePlayer,
 } from '../../common/data';
+import type { MyModule } from '../../common/types';
+import { simulatePentaDrill } from '../../simulator/simulator';
+import { Async, Color, Page, Style } from '../../utils';
+import css from './style.css';
 
 export const PentaDrillSimModule: MyModule<
   'arena' | 'preBattle' | 'heavy' | 'developer'
@@ -62,28 +62,31 @@ export const PentaDrillSimModule: MyModule<
       });
 
       /*
-      await Async.afterGameScriptsRun();
-      $('.player-container .description-container')
-        .append(
-          render(
-            <img
-              src="https://hh2.hh-content.com/design/ic_books_gray.svg"
-              style={{
-                position: 'absolute',
-                top: '0.6rem',
-                right: '0.6rem',
-                width: '2.6rem',
-                height: '2.6rem',
-                cursor: 'pointer',
-              }}
-            />,
-          ),
-        )
-        .on('click', () => {
-          void Async.run(async () => {
-            // TODO
+      if (settings.developer) {
+        await Async.afterGameScriptsRun();
+
+        $('.player-container .description-container')
+          .append(
+            render(
+              <img
+                src="https://hh2.hh-content.com/design/ic_books_gray.svg"
+                style={{
+                  position: 'absolute',
+                  top: '0.6rem',
+                  right: '0.6rem',
+                  width: '2.6rem',
+                  height: '2.6rem',
+                  cursor: 'pointer',
+                }}
+              />,
+            ),
+          )
+          .on('click', () => {
+            void Async.run(async () => {
+              // TODO
+            });
           });
-        });
+      }
       */
     }
 

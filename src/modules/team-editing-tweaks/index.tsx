@@ -1,15 +1,15 @@
 import { render } from 'preact-render-to-string';
 import {
-  type MyModule,
   Elements,
-  SkillTypeFromElement,
-  SkillNameFromSkillType,
+  type MyModule,
   RoleIds,
+  SkillNameFromSkillType,
+  SkillTypeFromElement,
 } from '../../common/types';
 import { Async, Page, Style } from '../../utils';
 import CompactGridCss from './compact-grid.css';
-import TooltipOnLockedGirlCss from './tooltip-on-locked-girl.css';
 import ShortcutBarCss from './shortcut-bar.css';
+import TooltipOnLockedGirlCss from './tooltip-on-locked-girl.css';
 
 export const TeamEditingTweaksModule: MyModule<
   'compactGrid' | 'tooltipOnLocked' | 'shortcutBar'

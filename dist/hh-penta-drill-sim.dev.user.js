@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.4
+// @version      0.0.5
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -14,8 +14,8 @@
 // @match        https://*.mangarpg.com/*
 // @grant        none
 // @run-at       document-body
-// @updateURL    https://github.com/rena-jp/hh-penta-drill-sim/raw/main/dist/hh-penta-drill-sim.dev.meta.js
-// @downloadURL  https://github.com/rena-jp/hh-penta-drill-sim/raw/main/dist/hh-penta-drill-sim.dev.user.js
+// @updateURL    https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.dev.meta.js
+// @downloadURL  https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.dev.user.js
 // ==/UserScript==
 
 "use strict";
@@ -855,11 +855,11 @@
   // src/modules/team-editing-tweaks/compact-grid.css
   var compact_grid_default = "body.page-edit-penta-drill-team .harem-panel .harem-panel-girls {\n  padding: 0;\n  grid-row-gap: 0;\n  grid-template-columns: repeat(5, 58px);\n}\nbody.page-edit-penta-drill-team .harem-panel-girls .harem-girl-container {\n  width: 58px;\n  height: 80px;\n}\n";
 
-  // src/modules/team-editing-tweaks/tooltip-on-locked-girl.css
-  var tooltip_on_locked_girl_default = "body.page-edit-penta-drill-team #edit-team-page.penta-drill .harem-panel .panel-body .harem-panel-girls .harem-girl-container:not(.selected)[team_slot] .grey-overlay {\n  pointer-events: none;\n}\n";
-
   // src/modules/team-editing-tweaks/shortcut-bar.css
   var shortcut_bar_default = "#shortcut-bar-box {\n  position: absolute;\n  right: 408px;\n  width: fit-content;\n  display: flex;\n  flex-direction: row;\n  gap: 0.35rem;\n  padding: 0.7rem 1px 0.7rem 0.7rem;\n  border-radius: 0.7rem 0 0 0.7rem;\n  background-color: #4f222e;\n  z-index: 1;\n}\n#shortcut-bar-box .shortcut-bar {\n  display: flex;\n  flex-direction: column;\n}\n#shortcut-bar-box .shortcut-bar .check-btn.element-state {\n  width: 38px;\n  height: 38px;\n  padding: 0;\n}\n#shortcut-bar-box .shortcut-bar .check-btn.element-state .role-icn {\n  width: 36px;\n  height: 36px;\n  background-size: 27px;\n}\n@media (min-width: 1026px) {\n  #shortcut-bar-box {\n    top: 113px;\n  }\n}\n@media (max-width: 1025px) {\n  #shortcut-bar-box {\n    top: 134px;\n  }\n}\n";
+
+  // src/modules/team-editing-tweaks/tooltip-on-locked-girl.css
+  var tooltip_on_locked_girl_default = "body.page-edit-penta-drill-team #edit-team-page.penta-drill .harem-panel .panel-body .harem-panel-girls .harem-girl-container:not(.selected)[team_slot] .grey-overlay {\n  pointer-events: none;\n}\n";
 
   // src/modules/team-editing-tweaks/index.tsx
   var TeamEditingTweaksModule = {
@@ -1446,6 +1446,7 @@
     }
     burn_default.simulate({ attacker });
     if (isDefeated(attackerTeam)) {
+      return createResult(!attacker.is_hero_fighter);
     }
     return { isOver: false };
   }

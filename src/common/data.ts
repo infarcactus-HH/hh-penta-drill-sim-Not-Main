@@ -1,12 +1,12 @@
 import type {
+  Fighter,
   FighterGirl,
-  SimTeam,
+  GameSkill,
+  Player,
   SimGirl,
+  SimTeam,
   Team,
   TeamGirl,
-  GameSkill,
-  Fighter,
-  Player,
 } from './types';
 
 export function getTeamsFromFighters(fighter: Fighter): SimTeam[] {

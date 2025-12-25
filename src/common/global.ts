@@ -1,4 +1,4 @@
-import type { Player, Fighter } from './types';
+import type { Fighter, Player } from './types';
 
 declare global {
   interface Window {

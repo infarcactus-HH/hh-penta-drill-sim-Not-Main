@@ -23,13 +23,13 @@ ${additional.trim()}
 }
 
 export const metadata = createMetadata(`
-// @updateURL    https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.meta.js
-// @downloadURL  https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.user.js
+// @updateURL    https://raw.githubusercontent.com/rena-jp/${packageJson.name}/main/dist/${packageJson.name}.meta.js
+// @downloadURL  https://raw.githubusercontent.com/rena-jp/${packageJson.name}/main/dist/${packageJson.name}.user.js
 `);
 
 export const metadataDev = createMetadata(`
-// @updateURL    https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.dev.meta.js
-// @downloadURL  https://github.com/rena-jp/${packageJson.name}/raw/main/dist/${packageJson.name}.dev.user.js
+// @updateURL    https://raw.githubusercontent.com/rena-jp/${packageJson.name}/main/dist/${packageJson.name}.dev.meta.js
+// @downloadURL  https://raw.githubusercontent.com/rena-jp/${packageJson.name}/main/dist/${packageJson.name}.dev.user.js
 `);
 
 export const loader = createMetadata(`

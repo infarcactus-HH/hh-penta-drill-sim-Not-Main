@@ -2,7 +2,7 @@ import { resetTeams } from '../common/data';
 import { RoleId, type SimTeam } from '../common/types';
 import { attack, getLowestEgoValue } from './common';
 import { BurnEffect, ReassuranceEffect, StunEffect } from './effects';
-import { selectTargetFrom, isCritical } from './random';
+import { isCritical, selectTargetFrom } from './random';
 import {
   Burnout,
   Lovestruck,
@@ -142,7 +142,7 @@ export function simulateTurn(params: TurnParams): Progress {
   BurnEffect.simulate({ attacker });
 
   if (isDefeated(attackerTeam)) {
-    // return createResult(!attacker.is_hero_fighter);
+    return createResult(!attacker.is_hero_fighter);
   }
 
   return { isOver: false };

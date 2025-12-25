@@ -7,7 +7,8 @@ import ts from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import pluginCompat from 'eslint-plugin-compat';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
-import unusedImports from 'eslint-plugin-unused-imports';
+import pluginUnusedImports from 'eslint-plugin-unused-imports';
+import pluginImport from 'eslint-plugin-import';
 
 import configPrettier from 'eslint-config-prettier/flat';
 
@@ -51,10 +52,13 @@ export default defineConfig(
           : {},
       })),
       ts.configs.recommended,
+      pluginImport.flatConfigs.recommended,
+      pluginImport.flatConfigs.typescript,
+      pluginImport.flatConfigs.react,
       pluginCompat.configs['flat/recommended'],
     ],
     plugins: {
-      'unused-imports': unusedImports,
+      'unused-imports': pluginUnusedImports,
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -68,6 +72,14 @@ export default defineConfig(
         },
       ],
       'unused-imports/no-unused-imports': 'warn',
+      'import/order': [
+        'warn',
+        {
+          alphabetize: {
+            order: 'asc',
+          },
+        },
+      ],
     },
   },
   {
