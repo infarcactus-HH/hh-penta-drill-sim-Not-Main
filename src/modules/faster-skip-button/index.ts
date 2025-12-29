@@ -5,7 +5,7 @@ import ClickableSkipButtonsCss from './clickable-skip-buttons.css';
 export const FasterSkipButtonModule: MyModule<'clickableSkipButton'> = {
   key: 'FasterSkipButtonModule',
   label: 'Make the skip button appear faster',
-  default: true,
+  default: false,
   settings: [
     {
       key: 'clickableSkipButton',

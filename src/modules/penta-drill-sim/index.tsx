@@ -18,7 +18,7 @@ export const PentaDrillSimModule: MyModule<
     { key: 'arena', default: true, label: 'Run on table page' },
     { key: 'preBattle', default: true, label: 'Run on pre-battle page' },
     { key: 'heavy', default: false, label: 'Heavy simulation (slow)' },
-    { key: 'developer', default: true, label: 'Developer mode' },
+    // { key: 'developer', default: false, label: 'Developer mode' },
   ],
   async run(settings) {
     if (settings.arena && Page.startsWith('/penta-drill-arena.html')) {

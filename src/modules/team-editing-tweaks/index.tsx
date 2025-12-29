@@ -16,7 +16,7 @@ export const TeamEditingTweaksModule: MyModule<
 > = {
   key: 'TeamEditingTweaksModule',
   label: 'Team editing tweaks',
-  default: true,
+  default: false,
   settings: [
     { key: 'compactGrid', default: true, label: 'Compact grid' },
     {

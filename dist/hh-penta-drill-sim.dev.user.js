@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.6
+// @version      0.0.7
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -787,7 +787,7 @@
   var AddResoureBarModule = {
     key: "CompactRewardsModule",
     label: "Add Resouce Bar on pre-battle page",
-    default: true,
+    default: false,
     async run() {
       if (!page_exports.startsWith("/penta-drill-pre-battle")) return;
       style_exports.injectToHead(style_default);
@@ -814,7 +814,7 @@
   var CompactRewardsModule = {
     key: "CompactRewardsModule",
     label: "Compact battle rewards",
-    default: true,
+    default: false,
     run() {
       if (!page_exports.startsWith("/penta-drill-battle.html")) return;
       style_exports.injectToHead(style_default2);
@@ -828,7 +828,7 @@
   var FasterSkipButtonModule = {
     key: "FasterSkipButtonModule",
     label: "Make the skip button appear faster",
-    default: true,
+    default: false,
     settings: [
       {
         key: "clickableSkipButton",
@@ -865,7 +865,7 @@
   var TeamEditingTweaksModule = {
     key: "TeamEditingTweaksModule",
     label: "Team editing tweaks",
-    default: true,
+    default: false,
     settings: [
       { key: "compactGrid", default: true, label: "Compact grid" },
       {
@@ -1542,8 +1542,8 @@
     settings: [
       { key: "arena", default: true, label: "Run on table page" },
       { key: "preBattle", default: true, label: "Run on pre-battle page" },
-      { key: "heavy", default: false, label: "Heavy simulation (slow)" },
-      { key: "developer", default: true, label: "Developer mode" }
+      { key: "heavy", default: false, label: "Heavy simulation (slow)" }
+      // { key: 'developer', default: false, label: 'Developer mode' },
     ],
     async run(settings) {
       if (settings.arena && page_exports.startsWith("/penta-drill-arena.html")) {

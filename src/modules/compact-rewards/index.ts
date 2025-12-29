@@ -5,7 +5,7 @@ import css from './style.css';
 export const CompactRewardsModule: MyModule<never> = {
   key: 'CompactRewardsModule',
   label: 'Compact battle rewards',
-  default: true,
+  default: false,
   run() {
     if (!Page.startsWith('/penta-drill-battle.html')) return;
     Style.injectToHead(css);

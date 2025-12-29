@@ -6,7 +6,7 @@ import css from './style.css';
 export const AddResoureBarModule: MyModule<never> = {
   key: 'CompactRewardsModule',
   label: 'Add Resouce Bar on pre-battle page',
-  default: true,
+  default: false,
   async run(): Promise<void> {
     if (!Page.startsWith('/penta-drill-pre-battle')) return;
     Style.injectToHead(css);
