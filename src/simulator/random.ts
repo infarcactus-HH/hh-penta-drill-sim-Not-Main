@@ -11,12 +11,13 @@ export function selectTargetFrom(targets: SimGirl[]): SimGirl {
 
 export function selectTargetsFrom(targets: SimGirl[], maxCount: number) {
   if (targets.length <= maxCount) return targets;
+  const temp = [...targets];
   const ret = [] as SimGirl[];
   [...(Array(maxCount) as [])].forEach(() => {
-    const i = Math.floor(Math.random() * targets.length);
-    ret.push(targets[i]!);
-    targets[i] = targets[targets.length - 1]!;
-    targets.length--;
+    const i = Math.floor(Math.random() * temp.length);
+    ret.push(temp[i]!);
+    temp[i] = temp[temp.length - 1]!;
+    temp.length--;
   });
   return ret;
 }
