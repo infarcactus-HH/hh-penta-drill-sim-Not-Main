@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.14
+// @version      0.0.15
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -826,7 +826,7 @@
   };
 
   // src/modules/compact-rewards/style.css
-  var style_default2 = "body.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .scrolling_area,\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable,\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .rewards_background {\n  max-height: unset;\n}\nbody.page-penta-drill-battle #rewards_big_header:not(.losing) {\n  zoom: 0.4;\n}\nbody.page-penta-drill-battle .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable {\n  zoom: 0.65;\n}\n";
+  var style_default2 = "body .popup_wrapper #rewards_popup .flex-container .rewards .container .scrolling_area,\nbody .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable,\nbody .popup_wrapper #rewards_popup .flex-container .rewards .rewards_background {\n  max-height: unset;\n}\nbody #rewards_big_header:not(.losing) {\n  zoom: 0.4;\n}\nbody .popup_wrapper #rewards_popup .flex-container .rewards .container .rewards_scrollable {\n  zoom: 0.65;\n}\n";
 
   // src/modules/compact-rewards/index.ts
   var CompactRewardsModule = {
@@ -834,8 +834,9 @@
     label: "Compact battle rewards",
     default: false,
     run() {
-      if (!page_exports.startsWith("/penta-drill-battle.html")) return;
-      style_exports.injectToHead(style_default2);
+      if (page_exports.startsWith("/penta-drill-battle") || page_exports.startsWith("/penta-drill-arena") || page_exports.startsWith("/penta-drill-pre-battle")) {
+        style_exports.injectToHead(style_default2);
+      }
     }
   };
 
