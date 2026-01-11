@@ -25,7 +25,7 @@ export const PentaDrillSimModule: MyModule<
       Style.injectToHead(css);
       await Async.afterDomContentLoaded();
 
-      const { player_datas, opponents_list } = window;
+      const { player_datas, opponents_list } = unsafeWindow;
       if (player_datas == null || opponents_list == null) {
         console.log('Not found', { player_datas, opponents_list });
         return;
@@ -96,7 +96,7 @@ export const PentaDrillSimModule: MyModule<
       Style.injectToHead(css);
 
       if (settings.preBattle) {
-        const { hero_fighter, opponent_fighter } = window;
+        const { hero_fighter, opponent_fighter } = unsafeWindow;
         if (hero_fighter == null || opponent_fighter == null) {
           console.log('Not found', { hero_fighter, opponent_fighter });
           return;

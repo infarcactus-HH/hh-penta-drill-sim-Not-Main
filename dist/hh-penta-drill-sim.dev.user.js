@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.12
+// @version      0.0.13
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -2099,7 +2099,7 @@
       if (settings.arena && page_exports.startsWith("/penta-drill-arena.html")) {
         style_exports.injectToHead(style_default3);
         await async_exports.afterDomContentLoaded();
-        const { player_datas, opponents_list } = window;
+        const { player_datas, opponents_list } = unsafeWindow;
         if (player_datas == null || opponents_list == null) {
           console.log("Not found", { player_datas, opponents_list });
           return;
@@ -2137,7 +2137,7 @@
         await async_exports.afterDomContentLoaded();
         style_exports.injectToHead(style_default3);
         if (settings.preBattle) {
-          const { hero_fighter, opponent_fighter } = window;
+          const { hero_fighter, opponent_fighter } = unsafeWindow;
           if (hero_fighter == null || opponent_fighter == null) {
             console.log("Not found", { hero_fighter, opponent_fighter });
             return;
