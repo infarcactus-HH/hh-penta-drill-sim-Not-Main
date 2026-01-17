@@ -17,7 +17,7 @@ function createMetadata(additional) {
 // @match        https://*.mangarpg.com/*
 // @grant        GM.getValue
 // @grant        GM.setValue
-// @run-at       document-body
+// @run-at       document-start
 ${additional.trim()}
 // ==/UserScript==
 `;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.16
+// @version      0.0.17
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -14,7 +14,7 @@
 // @match        https://*.mangarpg.com/*
 // @grant        GM.getValue
 // @grant        GM.setValue
-// @run-at       document-body
+// @run-at       document-start
 // @updateURL    https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.meta.js
 // @downloadURL  https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.user.js
 // ==/UserScript==
@@ -2355,39 +2355,61 @@
       if (settings.arena && page_exports.startsWith("/penta-drill-arena.html")) {
         style_exports.injectToHead(style_default3);
         await async_exports.afterBodyLoaded();
-        const { player_datas, opponents_list } = unsafeWindow;
-        if (player_datas == null || opponents_list == null) {
-          console.log("Not found", { player_datas, opponents_list });
+        if (unsafeWindow.player_datas == null || unsafeWindow.opponents_list == null) {
+          console.error("player_datas or opponents_list not found");
           return;
         }
-        const numSimulation = settings.heavy ? 300 : 100;
-        opponents_list.forEach((opponent) => {
-          void async_exports.run(async () => {
-            const heroTeams = getTeamsFromGamePlayer(player_datas);
-            const opponentTeams = getTeamsFromGamePlayer(opponent.player);
-            const expected = simulatePentaDrill(
-              heroTeams,
-              opponentTeams,
-              numSimulation
-            );
-            await async_exports.afterGameScriptsRun();
-            const $box = createSimResultsBox(expected);
-            let $button = $(
-              `a[href$="id_opponent=${opponent.player.id_fighter}"]`
-            );
-            if ($button.length === 0) {
-              $button = $(
-                `a[href*="id_opponent=${opponent.player.id_fighter}&"]`
-              );
-            }
-            $button.parent().after($box);
-            await async_exports.afterThirdpartyScriptsRun();
-            if ($box.parent().find("#perform_opponent").length > 0) {
-              $box.find(".pdsim-right").css("right", "6%");
-              $box.find(".pdsim-left").css("left", "6%");
-            }
-          });
+        let { player_datas, opponents_list } = unsafeWindow;
+        $(document).ajaxComplete((_event, jqXHR, ajaxOptions) => {
+          const { url, data } = ajaxOptions;
+          if (!url?.startsWith("/ajax.php")) return;
+          if (typeof data === "string" && data.includes("action=penta_drill_arena_reload")) {
+            const { battle_data } = jqXHR.responseJSON;
+            player_datas = battle_data.hero_fighter;
+            opponents_list = battle_data.opponents;
+          }
         });
+        const numSimulation = settings.heavy ? 300 : 100;
+        const update = () => {
+          opponents_list.forEach((opponent) => {
+            void async_exports.run(async () => {
+              const heroTeams = getTeamsFromGamePlayer(player_datas);
+              const opponentTeams = getTeamsFromGamePlayer(opponent.player);
+              const expected = simulatePentaDrill(
+                heroTeams,
+                opponentTeams,
+                numSimulation
+              );
+              await async_exports.afterGameScriptsRun();
+              const $box = createSimResultsBox(expected);
+              let $button = $(
+                `a[href$="id_opponent=${opponent.player.id_fighter}"]`
+              );
+              if ($button.length === 0) {
+                $button = $(
+                  `a[href*="id_opponent=${opponent.player.id_fighter}&"]`
+                );
+              }
+              $button.parent().after($box);
+              await async_exports.afterThirdpartyScriptsRun();
+              $(() => {
+                if ($box.parent().find("#perform_opponent").length > 0) {
+                  $box.find(".pdsim-right").css("right", "6%");
+                  $box.find(".pdsim-left").css("left", "6%");
+                }
+              });
+            });
+          });
+        };
+        const opponentContainer = document.querySelector(".opponents-container");
+        if (opponentContainer != null) {
+          if (document.querySelectorAll(".opponent-info-container").length > 0) {
+            update();
+          }
+          new MutationObserver(() => {
+            update();
+          }).observe(opponentContainer, { childList: true });
+        }
       }
       if (page_exports.startsWith("/penta-drill-pre-battle")) {
         style_exports.injectToHead(style_default3);

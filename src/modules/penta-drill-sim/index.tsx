@@ -3,7 +3,7 @@ import {
   getTeamsFromFighters,
   getTeamsFromGamePlayer,
 } from '../../common/data';
-import type { MyModule } from '../../common/types';
+import type { MyModule, Player } from '../../common/types';
 import { simulatePentaDrill } from '../../simulator/simulator';
 import { Async, Color, Page, Style } from '../../utils';
 import css from './style.css';
@@ -25,41 +25,78 @@ export const PentaDrillSimModule: MyModule<
       Style.injectToHead(css);
       await Async.afterBodyLoaded();
 
-      const { player_datas, opponents_list } = unsafeWindow;
-      if (player_datas == null || opponents_list == null) {
-        console.log('Not found', { player_datas, opponents_list });
+      if (
+        unsafeWindow.player_datas == null ||
+        unsafeWindow.opponents_list == null
+      ) {
+        console.error('player_datas or opponents_list not found');
         return;
       }
-      const numSimulation = settings.heavy ? 300 : 100;
-      opponents_list.forEach((opponent) => {
-        void Async.run(async () => {
-          const heroTeams = getTeamsFromGamePlayer(player_datas);
-          const opponentTeams = getTeamsFromGamePlayer(opponent.player);
-          const expected = simulatePentaDrill(
-            heroTeams,
-            opponentTeams,
-            numSimulation,
-          );
+      let { player_datas, opponents_list } = unsafeWindow;
 
-          await Async.afterGameScriptsRun();
-
-          const $box = createSimResultsBox(expected);
-          let $button = $(
-            `a[href$="id_opponent=${opponent.player.id_fighter}"]`,
-          );
-          if ($button.length === 0) {
-            $button = $(
-              `a[href*="id_opponent=${opponent.player.id_fighter}&"]`,
-            );
-          }
-          $button.parent().after($box);
-          await Async.afterThirdpartyScriptsRun();
-          if ($box.parent().find('#perform_opponent').length > 0) {
-            $box.find('.pdsim-right').css('right', '6%');
-            $box.find('.pdsim-left').css('left', '6%');
-          }
-        });
+      $(document).ajaxComplete((_event, jqXHR, ajaxOptions) => {
+        const { url, data } = ajaxOptions;
+        if (!url?.startsWith('/ajax.php')) return;
+        if (
+          typeof data === 'string' &&
+          data.includes('action=penta_drill_arena_reload')
+        ) {
+          const { battle_data } = jqXHR.responseJSON as {
+            battle_data: {
+              hero_fighter: Player;
+              opponents: { player: Player }[];
+            };
+          };
+          player_datas = battle_data.hero_fighter;
+          opponents_list = battle_data.opponents;
+        }
       });
+      const numSimulation = settings.heavy ? 300 : 100;
+      const update = () => {
+        opponents_list.forEach((opponent) => {
+          void Async.run(async () => {
+            const heroTeams = getTeamsFromGamePlayer(player_datas);
+            const opponentTeams = getTeamsFromGamePlayer(opponent.player);
+            const expected = simulatePentaDrill(
+              heroTeams,
+              opponentTeams,
+              numSimulation,
+            );
+
+            await Async.afterGameScriptsRun();
+
+            const $box = createSimResultsBox(expected);
+            let $button = $(
+              `a[href$="id_opponent=${opponent.player.id_fighter}"]`,
+            );
+            if ($button.length === 0) {
+              $button = $(
+                `a[href*="id_opponent=${opponent.player.id_fighter}&"]`,
+              );
+            }
+            $button.parent().after($box);
+
+            await Async.afterThirdpartyScriptsRun();
+
+            $(() => {
+              if ($box.parent().find('#perform_opponent').length > 0) {
+                $box.find('.pdsim-right').css('right', '6%');
+                $box.find('.pdsim-left').css('left', '6%');
+              }
+            });
+          });
+        });
+      };
+
+      const opponentContainer = document.querySelector('.opponents-container');
+      if (opponentContainer != null) {
+        if (document.querySelectorAll('.opponent-info-container').length > 0) {
+          update();
+        }
+        new MutationObserver(() => {
+          update();
+        }).observe(opponentContainer, { childList: true });
+      }
 
       /*
       if (settings.developer) {

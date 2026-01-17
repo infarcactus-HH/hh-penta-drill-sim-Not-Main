@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.16
+// @version      0.0.17
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -14,7 +14,7 @@
 // @match        https://*.mangarpg.com/*
 // @grant        GM.getValue
 // @grant        GM.setValue
-// @run-at       document-body
+// @run-at       document-start
 // @updateURL    https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.meta.js
 // @downloadURL  https://raw.githubusercontent.com/rena-jp/hh-penta-drill-sim/main/dist/hh-penta-drill-sim.user.js
 // ==/UserScript==
