@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.17
+// @version      0.0.18
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -2360,6 +2360,7 @@
           return;
         }
         let { player_datas, opponents_list } = unsafeWindow;
+        let refreshed = true;
         $(document).ajaxComplete((_event, jqXHR, ajaxOptions) => {
           const { url, data } = ajaxOptions;
           if (!url?.startsWith("/ajax.php")) return;
@@ -2371,6 +2372,7 @@
         });
         const numSimulation = settings.heavy ? 300 : 100;
         const update = () => {
+          refreshed = false;
           opponents_list.forEach((opponent) => {
             void async_exports.run(async () => {
               const heroTeams = getTeamsFromGamePlayer(player_datas);
@@ -2390,7 +2392,7 @@
                   `a[href*="id_opponent=${opponent.player.id_fighter}&"]`
                 );
               }
-              $button.parent().after($box);
+              $button.parent().parent().append($box);
               await async_exports.afterThirdpartyScriptsRun();
               $(() => {
                 if ($box.parent().find("#perform_opponent").length > 0) {
@@ -2407,7 +2409,9 @@
             update();
           }
           new MutationObserver(() => {
-            update();
+            if (refreshed) {
+              update();
+            }
           }).observe(opponentContainer, { childList: true });
         }
       }
