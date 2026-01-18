@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.18
+// @version      0.0.19
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -2368,6 +2368,7 @@
             const { battle_data } = jqXHR.responseJSON;
             player_datas = battle_data.hero_fighter;
             opponents_list = battle_data.opponents;
+            refreshed = true;
           }
         });
         const numSimulation = settings.heavy ? 300 : 100;

@@ -50,6 +50,7 @@ export const PentaDrillSimModule: MyModule<
           };
           player_datas = battle_data.hero_fighter;
           opponents_list = battle_data.opponents;
+          refreshed = true;
         }
       });
       const numSimulation = settings.heavy ? 300 : 100;
