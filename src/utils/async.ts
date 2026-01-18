@@ -29,10 +29,7 @@ const pagePromise: Promise<string> = bodyPromise.then((body) => {
           resolve(page);
         }
       });
-      bodyObserver.observe(body, {
-        attributes: true,
-        attributeFilter: ['page'],
-      });
+      bodyObserver.observe(body, { attributeFilter: ['page'] });
     });
   }
 });

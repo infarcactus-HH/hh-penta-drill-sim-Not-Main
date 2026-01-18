@@ -4,6 +4,7 @@ import { type MyModule, RoleId } from '../../common/types';
 import { Async, Page, Style } from '../../utils';
 import AddInfoCss from './add-info.css';
 import aff_table from './aff-table.json';
+import awakening_requirements from './awakening_requirements.json';
 import CompactGridCss from './compact-grid.css';
 import { FilterBox, type FilterSettings, type SortType } from './filter-box';
 import FilterCss from './filter-box.css';
@@ -93,7 +94,7 @@ export const TeamEditingTweaksModule: MyModule<
       filterGirls.map((e) => [e.id_girl, e]),
     );
 
-    const unloadedIconMap = new Map() as UnloadedIconMap;
+    const unloadedIconMap: UnloadedIconMap = new Map();
 
     if (
       settings.overrideFilter &&
@@ -118,6 +119,7 @@ export const TeamEditingTweaksModule: MyModule<
     const hexagonLineObserver = new MutationObserver((m) => {
       if (settings.fixBugs) fixTeamData(girlDataMap);
       m.forEach((e) => {
+        if (e.target.nodeName !== 'DIV') return;
         const target = e.target as HTMLElement;
         const id = Number(target.dataset.girlId);
         loadHexagonGirlIcon(unloadedIconMap, id);
@@ -129,12 +131,11 @@ export const TeamEditingTweaksModule: MyModule<
       hexagonContainer
         .querySelectorAll('.team-member-container')
         .forEach((e) => {
-          hexagonLineObserver.observe(e, {
-            attributes: true,
-            attributeFilter: ['data-girl-id'],
-          });
+          hexagonLineObserver.observe(e, { attributeFilter: ['data-girl-id'] });
         });
     };
+
+    observeHexagonLine();
 
     const teamObserver = new MutationObserver(() => {
       onCurrentTeamChanged();
@@ -603,26 +604,65 @@ function matchesFilter(settings: FilterSettings, girl: AvailableGirl) {
   } = settings;
 
   let matched = true;
-  matched &&=
-    grade === 'all' ||
-    (grade === '11' ? girl.nb_grades >= 5 : String(girl.nb_grades) === grade);
+  matched &&= matchGrade(girl, grade);
   matched &&= element === 'all' || girl.element === element;
   matched &&= role === 'all' || String(girl.id_role) === role;
   matched &&= classId === 'all' || String(girl.class) === classId;
   matched &&= rarity === 'all' || girl.rarity === rarity;
-  matched &&=
-    affection === 'all' || (affection === 'capped') === isAffectionCapped(girl);
-  matched &&= level === 'all' || (level === 'capped') === isLevelCapped(girl);
+  matched &&= matchAffectionCapped(girl, affection);
+  matched &&= matchLevelCapped(girl, level);
   return matched;
 
-  function isAffectionCapped(girl: AvailableGirl) {
-    return (
-      girl.graded >= girl.nb_grades ||
-      girl.affection >= aff_table[girl.rarity][girl.graded + 1]!
-    );
+  function matchGrade(girl: AvailableGirl, grade: string) {
+    if (grade === 'all') return true;
+    if (grade === '11') return girl.nb_grades >= 5;
+    return grade === String(girl.nb_grades);
   }
 
-  function isLevelCapped(girl: AvailableGirl) {
-    return girl.level >= girl.awakening_level * 50 + 250;
+  function matchAffectionCapped(girl: AvailableGirl, affectionType: string) {
+    if (affectionType === 'all') return true;
+    const { graded, nb_grades, rarity, affection } = girl;
+    const maxed = graded >= nb_grades;
+    const capped = maxed || aff_table[rarity][graded + 1]! <= affection;
+    if (affectionType === 'capped') return capped;
+    if (affectionType === 'uncapped') return !capped;
+    if (affectionType === 'upgrade') return !maxed && capped;
+    if (affectionType === 'maxed') return maxed;
+    return false;
   }
+
+  function matchLevelCapped(girl: AvailableGirl, levelType: string) {
+    if (levelType === 'all') return true;
+    const maxLevel = getCurrentGirlMaxLevel();
+    const { level, awakening_level } = girl;
+    const maxed = level >= maxLevel;
+    const cappedLevel = awakening_level * 50 + 250;
+    const capped = level >= cappedLevel;
+    if (levelType === 'capped') return capped;
+    if (levelType === 'uncapped') return !capped;
+    if (levelType === 'awaken') return !maxed && capped;
+    if (levelType === 'maxed') return maxed;
+    return false;
+  }
+}
+
+let currentGirlMaxLevel: number | undefined;
+
+function getCurrentGirlMaxLevel() {
+  if (currentGirlMaxLevel) return currentGirlMaxLevel;
+  const availableGirls = unsafeWindow.availableGirls;
+  const maxLevel = unsafeWindow.GIRL_MAX_LEVEL;
+  if (!availableGirls || !maxLevel) return 750;
+  const current = awakening_requirements.find((e) => {
+    const numGirls = availableGirls.filter(
+      (girl) => girl.level >= e.cap_level,
+    ).length;
+    return numGirls < e.girls_required;
+  });
+  if (current) {
+    currentGirlMaxLevel = current.cap_level;
+  } else {
+    currentGirlMaxLevel = 750;
+  }
+  return currentGirlMaxLevel;
 }

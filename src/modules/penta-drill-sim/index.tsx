@@ -25,14 +25,14 @@ export const PentaDrillSimModule: MyModule<
       Style.injectToHead(css);
       await Async.afterBodyLoaded();
 
-      if (
-        unsafeWindow.player_datas == null ||
-        unsafeWindow.opponents_list == null
-      ) {
-        console.error('player_datas or opponents_list not found');
+      const { player_datas, opponents_list } = unsafeWindow;
+      if (player_datas == null || opponents_list == null) {
+        console.error('Not found', { player_datas, opponents_list });
         return;
       }
-      let { player_datas, opponents_list } = unsafeWindow;
+
+      let hero_fighter = player_datas;
+      let opponents = opponents_list;
       let refreshed = true;
 
       $(document).ajaxComplete((_event, jqXHR, ajaxOptions) => {
@@ -48,17 +48,17 @@ export const PentaDrillSimModule: MyModule<
               opponents: { player: Player }[];
             };
           };
-          player_datas = battle_data.hero_fighter;
-          opponents_list = battle_data.opponents;
+          ({ hero_fighter, opponents } = battle_data);
           refreshed = true;
         }
       });
+
       const numSimulation = settings.heavy ? 300 : 100;
       const update = () => {
         refreshed = false;
-        opponents_list.forEach((opponent) => {
+        opponents.forEach((opponent) => {
           void Async.run(async () => {
-            const heroTeams = getTeamsFromGamePlayer(player_datas);
+            const heroTeams = getTeamsFromGamePlayer(hero_fighter);
             const opponentTeams = getTeamsFromGamePlayer(opponent.player);
             const expected = simulatePentaDrill(
               heroTeams,

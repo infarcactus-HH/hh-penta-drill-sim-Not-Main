@@ -8,10 +8,10 @@ function simulate({ attacker, attackerTeam }: TurnParams) {
   const flat = attacker.trigger_skill.flat_value!;
   const percentage = attacker.trigger_skill.percentage_value! / 100;
   const targets = attackerTeam.list.filter((e) => !e.is_defeated);
-  const buffs = targets.map((e) => {
+  const buffs = targets.map<[SimGirl, number]>((e) => {
     const buff = Math.ceil(e.initial_defense * percentage);
     e.defense += buff;
-    return [e, buff] as [SimGirl, number];
+    return [e, buff];
   });
   attackerTeam.reassurance_summary.push({
     buffs,

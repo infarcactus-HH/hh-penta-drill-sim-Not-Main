@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.19
+// @version      0.0.20
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -627,10 +627,7 @@
             resolve(page2);
           }
         });
-        bodyObserver.observe(body, {
-          attributes: true,
-          attributeFilter: ["page"]
-        });
+        bodyObserver.observe(body, { attributeFilter: ["page"] });
       });
     }
   });
@@ -922,6 +919,21 @@
     mythic: [0, 4500, 15750, 43875, 100125, 212625, 437625]
   };
 
+  // src/modules/team-editing-tweaks/awakening_requirements.json
+  var awakening_requirements_default = [
+    { girls_required: 0, cost: 0, cap_level: 250 },
+    { girls_required: 20, cost: 40, cap_level: 300 },
+    { girls_required: 25, cost: 60, cap_level: 350 },
+    { girls_required: 30, cost: 80, cap_level: 400 },
+    { girls_required: 35, cost: 100, cap_level: 450 },
+    { girls_required: 40, cost: 125, cap_level: 500 },
+    { girls_required: 50, cost: 150, cap_level: 550 },
+    { girls_required: 60, cost: 200, cap_level: 600 },
+    { girls_required: 70, cost: 275, cap_level: 650 },
+    { girls_required: 85, cost: 350, cap_level: 700 },
+    { girls_required: 100, cost: 500, cap_level: 750 }
+  ];
+
   // src/modules/team-editing-tweaks/compact-grid.css
   var compact_grid_default = "body[page=edit-penta-drill-team].page-edit-penta-drill-team > #contains_all > section > #edit-team-page.penta-drill > .change-team-panel.harem-panel .panel-title {\n  height: 2.5rem;\n  margin-bottom: 0.5rem;\n}\nbody[page=edit-penta-drill-team].page-edit-penta-drill-team > #contains_all > section > #edit-team-page.penta-drill > .change-team-panel.harem-panel > .panel-body {\n  height: calc(100% - 3rem);\n  border-radius: 5px;\n}\nbody[page=edit-penta-drill-team].page-edit-penta-drill-team > #contains_all > section > #edit-team-page.penta-drill > .change-team-panel.harem-panel > .panel-body > .harem-panel-girls {\n  padding: 0;\n  grid-row-gap: 2px;\n  grid-template-columns: repeat(5, 58px);\n}\nbody[page=edit-penta-drill-team].page-edit-penta-drill-team > #contains_all > section > #edit-team-page.penta-drill > .change-team-panel.harem-panel > .panel-body > .harem-panel-girls > .harem-girl-container {\n  width: 56px;\n  height: 64px;\n  padding: 0 2px;\n  justify-content: start;\n}\nbody[page=edit-penta-drill-team].page-edit-penta-drill-team > #contains_all > section > #edit-team-page.penta-drill > .change-team-panel.harem-panel > .panel-body > .harem-panel-girls > .harem-girl-container .girl-power-icon {\n  font-size: 9px;\n  margin-top: 0;\n  width: 16px;\n  height: 12px;\n  background-size: 16px;\n  line-height: 12px;\n}\n";
 
@@ -993,8 +1005,7 @@
       FilterList.forEach((e2) => {
         $filterBox.find(`#filter_${e2}`).selectric(options);
       });
-      $filterBox.find(".shortcut-bar button.check-btn").each((_3, _e) => {
-        const e2 = _e;
+      $filterBox.find(".shortcut-bar button.check-btn").each((_3, e2) => {
         const value = e2.value;
         $(e2).on("click", () => {
           $filterBox.find("#filter_role").prop("value", value).selectric("refresh").trigger("change");
@@ -1008,10 +1019,7 @@
       new MutationObserver(() => {
         const settings2 = this.getSettings();
         void filterDataPort.write(settings2);
-      }).observe($filterBox.get(0), {
-        attributes: true,
-        attributeFilter: ["class"]
-      });
+      }).observe($filterBox.get(0), { attributeFilter: ["class"] });
     };
     triggerChangeEvent = () => {
       const settings = this.getSettings();
@@ -1212,8 +1220,10 @@
               selected: settings.affection,
               children: [
                 /* @__PURE__ */ u3(k, { children: design.selectors_All }, "all"),
+                /* @__PURE__ */ u3(k, { children: design.uncapped }, "uncapped"),
                 /* @__PURE__ */ u3(k, { children: design.capped }, "capped"),
-                /* @__PURE__ */ u3(k, { children: design.uncapped }, "uncapped")
+                /* @__PURE__ */ u3(k, { children: design.upgrade }, "upgrade"),
+                /* @__PURE__ */ u3(k, { children: design.maxed }, "maxed")
               ]
             }
           ),
@@ -1225,8 +1235,10 @@
               selected: settings.level,
               children: [
                 /* @__PURE__ */ u3(k, { children: design.selectors_All }, "all"),
+                /* @__PURE__ */ u3(k, { children: design.uncapped }, "uncapped"),
                 /* @__PURE__ */ u3(k, { children: design.capped }, "capped"),
-                /* @__PURE__ */ u3(k, { children: design.uncapped }, "uncapped")
+                /* @__PURE__ */ u3(k, { children: design.awaken }, "awaken"),
+                /* @__PURE__ */ u3(k, { children: design.maxed }, "maxed")
               ]
             }
           )
@@ -1428,6 +1440,7 @@
       const hexagonLineObserver = new MutationObserver((m3) => {
         if (settings.fixBugs) fixTeamData(girlDataMap);
         m3.forEach((e2) => {
+          if (e2.target.nodeName !== "DIV") return;
           const target = e2.target;
           const id = Number(target.dataset.girlId);
           loadHexagonGirlIcon(unloadedIconMap, id);
@@ -1436,12 +1449,10 @@
       });
       const observeHexagonLine = () => {
         hexagonContainer.querySelectorAll(".team-member-container").forEach((e2) => {
-          hexagonLineObserver.observe(e2, {
-            attributes: true,
-            attributeFilter: ["data-girl-id"]
-          });
+          hexagonLineObserver.observe(e2, { attributeFilter: ["data-girl-id"] });
         });
       };
+      observeHexagonLine();
       const teamObserver = new MutationObserver(() => {
         onCurrentTeamChanged();
         observeHexagonLine();
@@ -1749,20 +1760,62 @@
       level
     } = settings;
     let matched = true;
-    matched &&= grade === "all" || (grade === "11" ? girl.nb_grades >= 5 : String(girl.nb_grades) === grade);
+    matched &&= matchGrade(girl, grade);
     matched &&= element === "all" || girl.element === element;
     matched &&= role === "all" || String(girl.id_role) === role;
     matched &&= classId === "all" || String(girl.class) === classId;
     matched &&= rarity === "all" || girl.rarity === rarity;
-    matched &&= affection === "all" || affection === "capped" === isAffectionCapped(girl);
-    matched &&= level === "all" || level === "capped" === isLevelCapped(girl);
+    matched &&= matchAffectionCapped(girl, affection);
+    matched &&= matchLevelCapped(girl, level);
     return matched;
-    function isAffectionCapped(girl2) {
-      return girl2.graded >= girl2.nb_grades || girl2.affection >= aff_table_default[girl2.rarity][girl2.graded + 1];
+    function matchGrade(girl2, grade2) {
+      if (grade2 === "all") return true;
+      if (grade2 === "11") return girl2.nb_grades >= 5;
+      return grade2 === String(girl2.nb_grades);
     }
-    function isLevelCapped(girl2) {
-      return girl2.level >= girl2.awakening_level * 50 + 250;
+    function matchAffectionCapped(girl2, affectionType) {
+      if (affectionType === "all") return true;
+      const { graded, nb_grades, rarity: rarity2, affection: affection2 } = girl2;
+      const maxed = graded >= nb_grades;
+      const capped = maxed || aff_table_default[rarity2][graded + 1] <= affection2;
+      if (affectionType === "capped") return capped;
+      if (affectionType === "uncapped") return !capped;
+      if (affectionType === "upgrade") return !maxed && capped;
+      if (affectionType === "maxed") return maxed;
+      return false;
     }
+    function matchLevelCapped(girl2, levelType) {
+      if (levelType === "all") return true;
+      const maxLevel = getCurrentGirlMaxLevel();
+      const { level: level2, awakening_level } = girl2;
+      const maxed = level2 >= maxLevel;
+      const cappedLevel = awakening_level * 50 + 250;
+      const capped = level2 >= cappedLevel;
+      if (levelType === "capped") return capped;
+      if (levelType === "uncapped") return !capped;
+      if (levelType === "awaken") return !maxed && capped;
+      if (levelType === "maxed") return maxed;
+      return false;
+    }
+  }
+  var currentGirlMaxLevel;
+  function getCurrentGirlMaxLevel() {
+    if (currentGirlMaxLevel) return currentGirlMaxLevel;
+    const availableGirls = unsafeWindow.availableGirls;
+    const maxLevel = unsafeWindow.GIRL_MAX_LEVEL;
+    if (!availableGirls || !maxLevel) return 750;
+    const current = awakening_requirements_default.find((e2) => {
+      const numGirls = availableGirls.filter(
+        (girl) => girl.level >= e2.cap_level
+      ).length;
+      return numGirls < e2.girls_required;
+    });
+    if (current) {
+      currentGirlMaxLevel = current.cap_level;
+    } else {
+      currentGirlMaxLevel = 750;
+    }
+    return currentGirlMaxLevel;
   }
 
   // src/common/data.ts
@@ -2355,28 +2408,29 @@
       if (settings.arena && page_exports.startsWith("/penta-drill-arena.html")) {
         style_exports.injectToHead(style_default3);
         await async_exports.afterBodyLoaded();
-        if (unsafeWindow.player_datas == null || unsafeWindow.opponents_list == null) {
-          console.error("player_datas or opponents_list not found");
+        const { player_datas, opponents_list } = unsafeWindow;
+        if (player_datas == null || opponents_list == null) {
+          console.error("Not found", { player_datas, opponents_list });
           return;
         }
-        let { player_datas, opponents_list } = unsafeWindow;
+        let hero_fighter = player_datas;
+        let opponents = opponents_list;
         let refreshed = true;
         $(document).ajaxComplete((_event, jqXHR, ajaxOptions) => {
           const { url, data } = ajaxOptions;
           if (!url?.startsWith("/ajax.php")) return;
           if (typeof data === "string" && data.includes("action=penta_drill_arena_reload")) {
             const { battle_data } = jqXHR.responseJSON;
-            player_datas = battle_data.hero_fighter;
-            opponents_list = battle_data.opponents;
+            ({ hero_fighter, opponents } = battle_data);
             refreshed = true;
           }
         });
         const numSimulation = settings.heavy ? 300 : 100;
         const update = () => {
           refreshed = false;
-          opponents_list.forEach((opponent) => {
+          opponents.forEach((opponent) => {
             void async_exports.run(async () => {
-              const heroTeams = getTeamsFromGamePlayer(player_datas);
+              const heroTeams = getTeamsFromGamePlayer(hero_fighter);
               const opponentTeams = getTeamsFromGamePlayer(opponent.player);
               const expected = simulatePentaDrill(
                 heroTeams,

@@ -8,7 +8,7 @@ void (async function () {
 
   await Async.afterHeadLoaded();
 
-  const moduleList = Object.values(Modules) as MyModule<string>[];
+  const moduleList: MyModule<string>[] = Object.values(Modules);
 
   // Import HHPlusPlus
   const HHPlusPlus = await Async.importHHPlusPlusConfig();
@@ -19,9 +19,9 @@ void (async function () {
   moduleList.forEach((module) => {
     if (module.default) {
       const settings =
-        module.settings?.reduce(
+        module.settings?.reduce<Record<string, boolean>>(
           (p, c) => ((p[c.key] = c.default), p),
-          {} as Record<string, boolean>,
+          {},
         ) ?? {};
       void module.run(settings);
     }

@@ -83,17 +83,18 @@ export class FilterBox {
       $filterBox.find(`#filter_${e}`).selectric(options);
     });
 
-    $filterBox.find('.shortcut-bar button.check-btn').each((_, _e) => {
-      const e = _e as HTMLInputElement;
-      const value = e.value;
-      $(e).on('click', () => {
-        $filterBox
-          .find('#filter_role')
-          .prop('value', value)
-          .selectric('refresh')
-          .trigger('change');
+    $filterBox
+      .find<HTMLButtonElement>('.shortcut-bar button.check-btn')
+      .each((_, e) => {
+        const value = e.value;
+        $(e).on('click', () => {
+          $filterBox
+            .find('#filter_role')
+            .prop('value', value)
+            .selectric('refresh')
+            .trigger('change');
+        });
       });
-    });
 
     if (settings.open) $filterBox.addClass('visible-filters-panel');
 
@@ -106,10 +107,7 @@ export class FilterBox {
     new MutationObserver(() => {
       const settings = this.getSettings();
       void filterDataPort.write(settings);
-    }).observe($filterBox.get(0)!, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
+    }).observe($filterBox.get(0)!, { attributeFilter: ['class'] });
   };
 
   private triggerChangeEvent = () => {
@@ -141,7 +139,7 @@ export class FilterBox {
 function getFilterSettings($filterBox: JQuery<Element>): FilterSettings {
   const getValue = (e: string) => String($filterBox.find(`#filter_${e}`).val());
 
-  const settings = {} as Partial<FilterSettings>;
+  const settings: Partial<FilterSettings> = {};
   (
     [
       'grade',
@@ -299,8 +297,10 @@ function getFilterBoxHtml(settings: FilterSettings) {
           selected={settings.affection}
         >
           <Fragment key="all">{design.selectors_All}</Fragment>
-          <Fragment key="capped">{design.capped}</Fragment>
           <Fragment key="uncapped">{design.uncapped}</Fragment>
+          <Fragment key="capped">{design.capped}</Fragment>
+          <Fragment key="upgrade">{design.upgrade}</Fragment>
+          <Fragment key="maxed">{design.maxed}</Fragment>
         </Selectric>
 
         <Selectric
@@ -309,8 +309,10 @@ function getFilterBoxHtml(settings: FilterSettings) {
           selected={settings.level}
         >
           <Fragment key="all">{design.selectors_All}</Fragment>
-          <Fragment key="capped">{design.capped}</Fragment>
           <Fragment key="uncapped">{design.uncapped}</Fragment>
+          <Fragment key="capped">{design.capped}</Fragment>
+          <Fragment key="awaken">{design.awaken}</Fragment>
+          <Fragment key="maxed">{design.maxed}</Fragment>
         </Selectric>
       </div>
 
