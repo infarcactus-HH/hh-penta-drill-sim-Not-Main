@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hentai Heroes Penta Drill Sim
 // @namespace    https://github.com/rena-jp/hh-penta-drill-sim
-// @version      0.0.20
+// @version      0.0.21
 // @description  Add Penta Drill simulator for Hentai Heroes
 // @author       rena
 // @match        https://*.hentaiheroes.com/*
@@ -61,7 +61,7 @@
   // src/modules/index.ts
   var modules_exports = {};
   __export(modules_exports, {
-    AddResoureBarModule: () => AddResoureBarModule,
+    AddResourceBarModule: () => AddResourceBarModule,
     CompactRewardsModule: () => CompactRewardsModule,
     FasterSkipButtonModule: () => FasterSkipButtonModule,
     PentaDrillSimModule: () => PentaDrillSimModule,
@@ -822,7 +822,7 @@
     }
   };
 
-  // src/modules/add-resoure-bar/style.css
+  // src/modules/add-resource-bar/style.css
   var style_default = ".pdsim-resource-box {\n  width: 100%;\n  height: 0;\n  position: relative;\n}\n.pdsim-resource-box #drill_energy {\n  position: absolute;\n  bottom: 6rem;\n  left: 38%;\n  right: 38%;\n}\n.pdsim-resource-box #drill_energy.energy_counter span[rel=count_txt] {\n  margin-top: 0;\n}\n";
 
   // node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
@@ -836,10 +836,10 @@
     return l.vnode && l.vnode(l3), l3;
   }
 
-  // src/modules/add-resoure-bar/index.tsx
-  var AddResoureBarModule = {
-    key: "CompactRewardsModule",
-    label: "Add Resouce Bar on pre-battle page",
+  // src/modules/add-resource-bar/index.tsx
+  var AddResourceBarModule = {
+    key: "AddResourceBarModule",
+    label: "Add Resource Bar on pre-battle page",
     default: false,
     async run() {
       if (!page_exports.startsWith("/penta-drill-pre-battle")) return;

@@ -3,9 +3,9 @@ import type { MyModule } from '../../common/types';
 import { Async, Page, Style } from '../../utils';
 import css from './style.css';
 
-export const AddResoureBarModule: MyModule<never> = {
-  key: 'AddResoureBarModule',
-  label: 'Add Resouce Bar on pre-battle page',
+export const AddResourceBarModule: MyModule<never> = {
+  key: 'AddResourceBarModule',
+  label: 'Add Resource Bar on pre-battle page',
   default: false,
   async run(): Promise<void> {
     if (!Page.startsWith('/penta-drill-pre-battle')) return;

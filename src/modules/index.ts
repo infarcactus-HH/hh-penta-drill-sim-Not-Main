@@ -1,4 +1,4 @@
-export { AddResoureBarModule } from './add-resoure-bar';
+export { AddResourceBarModule } from './add-resource-bar';
 export { CompactRewardsModule } from './compact-rewards';
 export { FasterSkipButtonModule } from './faster-skip-button';
 export { TeamEditingTweaksModule } from './team-editing-tweaks';
