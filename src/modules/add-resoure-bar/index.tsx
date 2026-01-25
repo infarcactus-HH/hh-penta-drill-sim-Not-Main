@@ -4,7 +4,7 @@ import { Async, Page, Style } from '../../utils';
 import css from './style.css';
 
 export const AddResoureBarModule: MyModule<never> = {
-  key: 'CompactRewardsModule',
+  key: 'AddResoureBarModule',
   label: 'Add Resouce Bar on pre-battle page',
   default: false,
   async run(): Promise<void> {
